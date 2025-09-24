@@ -1,4 +1,4 @@
-import { HttpResponse } from "msw";
+import { delay, HttpResponse } from "msw";
 import { http } from "../http";
 import { type ApiSchemas } from "../../schema";
 import { verifyTokenOrThrow } from "../session";
@@ -239,6 +239,8 @@ export const boardsHandlers = [
     await verifyTokenOrThrow(request);
     const { boardId } = params;
     const index = boards.findIndex((board) => board.id === boardId);
+
+    delay(1000);
 
     if (index === -1) {
       return HttpResponse.json(
