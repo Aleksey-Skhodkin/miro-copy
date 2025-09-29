@@ -13,10 +13,10 @@ export function useUpdateFavorite() {
     {
       onSettled: async () => {
         await queryClient.invalidateQueries(
-          rqClient.queryOptions("get", "/boards")
+          rqClient.queryOptions("get", "/boards"),
         );
       },
-    }
+    },
   );
 
   const toggle = (board: { id: string; isFavorite: boolean }) => {

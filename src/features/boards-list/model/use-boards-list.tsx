@@ -1,5 +1,6 @@
 import { rqClient } from "@/shared/api/instance";
-import { useCallback, type RefCallback } from "react";
+import { keepPreviousData } from "@tanstack/query-core";
+import { RefCallback, useCallback } from "react";
 
 type UseBoardsListParams = {
   limit?: number;
@@ -33,8 +34,12 @@ export function useBoardsList({
         initialPageParam: 1,
         pageParamName: "page",
         getNextPageParam: (lastPage, _, lastPageParams) =>
-          +lastPageParams < lastPage.totalPages ? +lastPageParams + 1 : null,
-      }
+          Number(lastPageParams) < lastPage.totalPages
+            ? Number(lastPageParams) + 1
+            : null,
+
+        placeholderData: keepPreviousData,
+      },
     );
 
   const cursorRef: RefCallback<HTMLDivElement> = useCallback(
@@ -45,7 +50,7 @@ export function useBoardsList({
             fetchNextPage();
           }
         },
-        { threshold: 0.5 }
+        { threshold: 0.5 },
       );
 
       if (el) {
@@ -56,12 +61,16 @@ export function useBoardsList({
         };
       }
     },
-    [fetchNextPage]
+    [fetchNextPage],
   );
 
   const boards = data?.pages.flatMap((page) => page.list) ?? [];
 
-  return { boards, cursorRef, isFetchingNextPage, isPending, hasNextPage };
+  return {
+    boards,
+    isFetchingNextPage,
+    isPending,
+    hasNextPage,
+    cursorRef,
+  };
 }
-
-export default useBoardsList;

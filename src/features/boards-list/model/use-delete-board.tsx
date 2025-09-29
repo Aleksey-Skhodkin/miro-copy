@@ -3,17 +3,16 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export function useDeleteBoard() {
   const queryClient = useQueryClient();
-
   const deleteBoardMutation = rqClient.useMutation(
     "delete",
     "/boards/{boardId}",
     {
       onSettled: async () => {
         await queryClient.invalidateQueries(
-          rqClient.queryOptions("get", "/boards")
+          rqClient.queryOptions("get", "/boards"),
         );
       },
-    }
+    },
   );
 
   return {
@@ -21,11 +20,8 @@ export function useDeleteBoard() {
       deleteBoardMutation.mutate({
         params: { path: { boardId } },
       }),
-    getIsPending: (boardId: string) => {
-      return (
-        deleteBoardMutation.isPending &&
-        deleteBoardMutation.variables.params.path.boardId === boardId
-      );
-    },
+    getIsPending: (boardId: string) =>
+      deleteBoardMutation.isPending &&
+      deleteBoardMutation.variables?.params?.path?.boardId === boardId,
   };
 }
