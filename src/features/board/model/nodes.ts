@@ -33,3 +33,5 @@ export function useNodes() {
 
   return { nodes, addSticker };
 }
+
+export type NodesModel = ReturnType<typeof useNodes>;
