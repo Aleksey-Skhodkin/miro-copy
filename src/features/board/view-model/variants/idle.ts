@@ -25,9 +25,9 @@ export function useIdleViewModel({
         }
       },
     },
-    canvas: {
+    overlay: {
       onClick: () => {
-        console.log("asdfsa");
+        viewStateModel.selection([], "replace");
       },
     },
     actions: {

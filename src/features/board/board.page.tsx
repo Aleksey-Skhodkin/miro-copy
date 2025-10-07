@@ -22,8 +22,12 @@ function BoardPage() {
   return (
     <Layout ref={focusLayoutRef} onKeyDown={viewModel.layout?.onKeyDown}>
       <Dots />
-      <Overlay />
       <Canvas ref={canvasRef} onClick={viewModel.canvas?.onClick}>
+        <Overlay
+          onClick={viewModel.overlay?.onClick}
+          onMouseDown={viewModel.overlay?.onMouseDown}
+          onMouseUp={viewModel.overlay?.onMouseUp}
+        />
         {viewModel.nodes.map(({ id, text, x, y, isSelected, onClick }) => (
           <Sticker
             key={id}
@@ -52,8 +56,23 @@ function BoardPage() {
 
 export const Component = BoardPage;
 
-function Overlay() {
-  return <div className="absolute inset-0" />;
+function Overlay({
+  onClick,
+  onMouseDown,
+  onMouseUp,
+}: {
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
+}) {
+  return (
+    <div
+      className="absolute inset-0"
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    />
+  );
 }
 
 function Layout({
