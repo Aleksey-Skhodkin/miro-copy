@@ -1,9 +1,9 @@
 import type { CanvasRect } from "../hooks/use-canvas-rect";
 import type { NodesModel } from "../model/nodes";
-import type { ViewStateModel } from "../model/view-state";
+import type { ViewState } from "./use-view-model";
 
 export type ViewModelParams = {
-  viewStateModel: ViewStateModel;
+  setViewState: React.Dispatch<React.SetStateAction<ViewState>>;
   nodesModel: NodesModel;
   canvasRect: CanvasRect | undefined;
 };

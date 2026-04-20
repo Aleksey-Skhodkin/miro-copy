@@ -1,40 +1,119 @@
-import type { IdleViewState } from "../../model/view-state";
+import { distanceFromPoints } from "../../domain/point";
+import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
+import {
+  selectItems,
+  type Selection,
+  type SelectionModifier,
+} from "../../domain/selection";
 import type { ViewModelParams } from "../view-model-params";
 import type { ViewModel } from "../view-model-type";
+import { goToAddSticker } from "./add-sticker";
+import { goToSelectionWindow } from "./selection-window";
+
+export type IdleViewState = {
+  type: "idle";
+  selectedIds: Set<string>;
+  mouseDown?: {
+    x: number;
+    y: number;
+  };
+};
 
 export function useIdleViewModel({
   nodesModel,
-  viewStateModel,
+  setViewState,
+  canvasRect,
 }: ViewModelParams) {
+  const select = (
+    lastState: IdleViewState,
+    ids: string[],
+    modif: SelectionModifier,
+  ) => {
+    setViewState({
+      ...lastState,
+      selectedIds: selectItems(lastState.selectedIds, ids, modif),
+    });
+  };
+
   return (idleState: IdleViewState): ViewModel => ({
     nodes: nodesModel.nodes.map((node) => ({
       ...node,
       isSelected: idleState.selectedIds.has(node.id),
       onClick: (e) => {
         if (e.ctrlKey || e.shiftKey) {
-          viewStateModel.selection([node.id], "toggle");
+          select(idleState, [node.id], "toggle");
         } else {
-          viewStateModel.selection([node.id], "replace");
+          select(idleState, [node.id], "replace");
         }
       },
     })),
     layout: {
       onKeyDown: (e) => {
         if (e.key === "s") {
-          viewStateModel.goToAddSticker();
+          setViewState(goToAddSticker());
         }
       },
     },
     overlay: {
-      onClick: () => {
-        viewStateModel.selection([], "replace");
+      onMouseDown: (e) => {
+        setViewState({
+          ...idleState,
+          mouseDown: pointOnScreenToCanvas(
+            { x: e.clientX, y: e.clientY },
+            canvasRect,
+          ),
+        });
+      },
+      onMouseUp: () => {
+        select(idleState, [], "replace");
+      },
+    },
+    window: {
+      onMouseMove: (e) => {
+        if (idleState.mouseDown) {
+          const currentPoint = pointOnScreenToCanvas(
+            {
+              x: e.clientX,
+              y: e.clientY,
+            },
+            canvasRect,
+          );
+          if (distanceFromPoints(idleState.mouseDown, currentPoint) > 5) {
+            setViewState(
+              goToSelectionWindow({
+                startPoint: idleState.mouseDown,
+                endPoint: currentPoint,
+                initialSelectedIds: e.shiftKey
+                  ? idleState.selectedIds
+                  : undefined,
+              }),
+            );
+          }
+        }
+      },
+      onMouseUp: () => {
+        setViewState({
+          ...idleState,
+          mouseDown: undefined,
+        });
       },
     },
     actions: {
       addSticker: {
         isActive: false,
-        onClick: () => viewStateModel.goToAddSticker(),
+        onClick: () => setViewState(goToAddSticker()),
       },
     },
   });
+}
+
+export function goToIdle({
+  selectedIds,
+}: {
+  selectedIds?: Selection;
+} = {}): IdleViewState {
+  return {
+    type: "idle",
+    selectedIds: selectedIds ?? new Set(),
+  };
 }

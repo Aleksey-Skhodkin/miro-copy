@@ -2,22 +2,22 @@ import { Button } from "@/shared/ui/kit/button";
 import clsx from "clsx";
 import { ArrowRightIcon, StickerIcon } from "lucide-react";
 import { type Ref } from "react";
+import type { Rect } from "./domain/rect";
 import { useCanvasRect } from "./hooks/use-canvas-rect";
 import { useLayoutFocus } from "./hooks/use-layout-focus";
+import { useWindowEvents } from "./hooks/use-window-events";
 import { useNodes } from "./model/nodes";
-import { useViewState } from "./model/view-state";
 import { useViewModel } from "./view-model/use-view-model";
 
 function BoardPage() {
   const nodesModel = useNodes();
-  const viewStateModel = useViewState();
   const { canvasRef, canvasRect } = useCanvasRect();
   const focusLayoutRef = useLayoutFocus();
   const viewModel = useViewModel({
-    viewStateModel,
     nodesModel,
     canvasRect,
   });
+  useWindowEvents(viewModel);
 
   return (
     <Layout ref={focusLayoutRef} onKeyDown={viewModel.layout?.onKeyDown}>
@@ -39,6 +39,9 @@ function BoardPage() {
           />
         ))}
       </Canvas>
+      {viewModel.selectionWindow && (
+        <SelectionWindow {...viewModel.selectionWindow} />
+      )}
       <Actions>
         <ActionButton
           isActive={viewModel.actions?.addSticker?.isActive}
@@ -55,6 +58,15 @@ function BoardPage() {
 }
 
 export const Component = BoardPage;
+
+function SelectionWindow({ x, y, width, height }: Rect) {
+  return (
+    <div
+      className="absolute inset-0 bg-blue-500/30 border-2 border-blue-500"
+      style={{ transform: `translate(${x}px, ${y}px)`, width, height }}
+    />
+  );
+}
 
 function Overlay({
   onClick,
@@ -131,7 +143,7 @@ function Sticker({
     <button
       className={clsx(
         "absolute bg-yellow-300 px-2 py-4 rounded-xs shadow-md",
-        selected && "outline outline-2 outline-blue-500"
+        selected && "outline outline-2 outline-blue-500",
       )}
       style={{ transform: `translate(${x}px, ${y}px)` }}
       onClick={onClick}
