@@ -12,14 +12,17 @@ import { Overlay } from "./ui/Overlay";
 import { SelectionWindow } from "./ui/SelectionWindow";
 import { Sticker } from "./ui/Sticker";
 import { useViewModel } from "./view-model/use-view-model";
+import { useNodesDimensions } from "./hooks/use-nodes-dimensions";
 
 function BoardPage() {
   const nodesModel = useNodes();
   const { canvasRef, canvasRect } = useCanvasRect();
+  const { nodeRef, nodesDimensions } = useNodesDimensions();
   const focusLayoutRef = useLayoutFocus();
   const viewModel = useViewModel({
     nodesModel,
     canvasRect,
+    nodesDimensions,
   });
   useWindowEvents(viewModel);
 
@@ -34,6 +37,8 @@ function BoardPage() {
         />
         {viewModel.nodes.map(({ id, text, x, y, isSelected, onClick }) => (
           <Sticker
+            id={id}
+            ref={nodeRef}
             key={id}
             text={text}
             x={x}

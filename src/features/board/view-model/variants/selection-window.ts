@@ -1,5 +1,10 @@
 import type { Point } from "../../domain/point";
-import { createRectFromPoints, isPointInRect } from "../../domain/rect";
+import {
+  createRectFromDimensions,
+  createRectFromPoints,
+  isRectIntersecting,
+  type Rect,
+} from "../../domain/rect";
 import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
 import { selectItems } from "../../domain/selection";
 import type { ViewModelParams } from "../view-model-params";
@@ -17,15 +22,27 @@ export function useSelectionWindowViewModel({
   nodesModel,
   setViewState,
   canvasRect,
+  nodesDimensions,
 }: ViewModelParams) {
-  return (state: SelectionWindowViewState): ViewModel => {
-    const rect = createRectFromPoints(state.startPoint, state.endPoint);
-    return {
-      nodes: nodesModel.nodes.map((node) => ({
+  const getNodes = (state: SelectionWindowViewState, selectionRect: Rect) => {
+    return nodesModel.nodes.map((node) => {
+      const nodeDimensions = nodesDimensions[node.id];
+      const nodeRect = createRectFromDimensions(node, nodeDimensions);
+      return {
         ...node,
         isSelected:
-          isPointInRect(node, rect) || state.initialSelectedIds.has(node.id),
-      })),
+          isRectIntersecting(nodeRect, selectionRect) ||
+          state.initialSelectedIds.has(node.id),
+      };
+    });
+  };
+
+  return (state: SelectionWindowViewState): ViewModel => {
+    const rect = createRectFromPoints(state.startPoint, state.endPoint);
+    const nodes = getNodes(state, rect);
+
+    return {
+      nodes,
       selectionWindow: rect,
       window: {
         onMouseMove: (e) => {
@@ -36,8 +53,8 @@ export function useSelectionWindowViewModel({
           setViewState({ ...state, endPoint: currentPoint });
         },
         onMouseUp: () => {
-          const nodesIdsInRect = nodesModel.nodes
-            .filter((node) => isPointInRect(node, rect))
+          const nodesIdsInRect = nodes
+            .filter((node) => node.isSelected)
             .map((node) => node.id);
 
           setViewState(

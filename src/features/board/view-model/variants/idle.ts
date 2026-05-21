@@ -35,6 +35,16 @@ export function useIdleViewModel({
     });
   };
 
+  const deleteSelected = (viewState: IdleViewState) => {
+    if (viewState.selectedIds.size > 0) {
+      nodesModel.deleteNodes(viewState.selectedIds);
+      setViewState({
+        ...viewState,
+        selectedIds: new Set(),
+      });
+    }
+  };
+
   return (idleState: IdleViewState): ViewModel => ({
     nodes: nodesModel.nodes.map((node) => ({
       ...node,
@@ -51,6 +61,9 @@ export function useIdleViewModel({
       onKeyDown: (e) => {
         if (e.key === "s") {
           setViewState(goToAddSticker());
+        }
+        if (e.key === "Delete" || e.key === "Backspace") {
+          deleteSelected(idleState);
         }
       },
     },

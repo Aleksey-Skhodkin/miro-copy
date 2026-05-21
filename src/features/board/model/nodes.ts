@@ -31,7 +31,18 @@ export function useNodes() {
     ]);
   };
 
-  return { nodes, addSticker };
+  // const deleteNodes = (ids: string[]) => {
+  //   setNodes((lastNodes) => {
+  //     return lastNodes.filter((node) => !ids.includes(node.id));
+  //   });
+  // };
+  const deleteNodes = (ids: Set<string>) => {
+    setNodes((lastNodes) => {
+      return lastNodes.filter((node) => !ids.has(node.id));
+    });
+  };
+
+  return { nodes, addSticker, deleteNodes };
 }
 
 export type NodesModel = ReturnType<typeof useNodes>;
