@@ -29,9 +29,6 @@ export function useEditStickerViewModel({
     layout: {
       onKeyDown: (e) => {
         if (e.key === "Escape") {
-          setViewState(goToIdle());
-        }
-        if (e.key === "Enter") {
           if (viewState.newText) {
             nodesModel.updateStickerText(
               viewState.stickerId,

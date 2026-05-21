@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { Ref } from "react";
+import { useLayoutEffect, useRef, useState, type Ref } from "react";
 
 export function Sticker({
   ref,
@@ -27,22 +27,58 @@ export function Sticker({
       data-id={id}
       ref={ref}
       className={clsx(
-        "absolute bg-yellow-300 px-2 py-4 rounded-xs shadow-md",
+        "absolute bg-yellow-300 px-2 py-4 rounded-xs shadow-md text-left",
         isSelected && "outline outline-2 outline-blue-500",
       )}
       style={{ transform: `translate(${x}px, ${y}px)` }}
       onClick={onClick}
     >
-      {isEditing ? (
-        <input
-          autoFocus
-          className="w-full h-full"
-          value={text}
-          onChange={(e) => onTextChange?.(e.target.value)}
-        />
-      ) : (
-        text
-      )}
+      <TextareaAutoSize
+        isEditing={isEditing ?? false}
+        value={text}
+        onChange={(value) => onTextChange?.(value)}
+      />
     </button>
+  );
+}
+
+function TextareaAutoSize({
+  value,
+  onChange,
+  isEditing,
+}: {
+  isEditing: boolean;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const { scrollHeight, scrollWidth } = ref.current;
+    setHeight(scrollHeight);
+    setWidth(scrollWidth);
+  }, [value]);
+
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        className={clsx("whitespace-pre-wrap", isEditing && "opacity-0")}
+      >
+        {value}
+      </div>
+      {isEditing && (
+        <textarea
+          autoFocus
+          className="absolute left-0 top-0 resize-none overflow-hidden"
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          style={{ width: width + 2, height: height + 2 }}
+        />
+      )}
+    </div>
   );
 }
