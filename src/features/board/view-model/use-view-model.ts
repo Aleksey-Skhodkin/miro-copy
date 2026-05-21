@@ -14,10 +14,15 @@ import {
   useSelectionWindowViewModel,
   type SelectionWindowViewState,
 } from "./variants/selection-window";
+import {
+  useEditStickerViewModel,
+  type EditStickerViewState,
+} from "./variants/edit-sticker";
 
 export type ViewState =
-  | IdleViewState
   | AddStickerViewState
+  | EditStickerViewState
+  | IdleViewState
   | SelectionWindowViewState;
 
 export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
@@ -28,14 +33,18 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
     setViewState,
   };
 
-  const idleViewModel = useIdleViewModel(newParams);
   const addStickerViewModel = useAddStickerViewModel(newParams);
+  const editStickerViewModel = useEditStickerViewModel(newParams);
+  const idleViewModel = useIdleViewModel(newParams);
   const selectionWindowViewModel = useSelectionWindowViewModel(newParams);
 
   let viewModel: ViewModel;
   switch (viewState.type) {
     case "add-sticker":
       viewModel = addStickerViewModel();
+      break;
+    case "edit-sticker":
+      viewModel = editStickerViewModel(viewState);
       break;
     case "idle": {
       viewModel = idleViewModel(viewState);

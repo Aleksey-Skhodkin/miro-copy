@@ -31,6 +31,12 @@ export function useNodes() {
     ]);
   };
 
+  const updateStickerText = (id: string, text: string) => {
+    setNodes((prev) => {
+      return prev.map((node) => (node.id === id ? { ...node, text } : node));
+    });
+  };
+
   // const deleteNodes = (ids: string[]) => {
   //   setNodes((lastNodes) => {
   //     return lastNodes.filter((node) => !ids.includes(node.id));
@@ -42,7 +48,7 @@ export function useNodes() {
     });
   };
 
-  return { nodes, addSticker, deleteNodes };
+  return { nodes, addSticker, deleteNodes, updateStickerText };
 }
 
 export type NodesModel = ReturnType<typeof useNodes>;
