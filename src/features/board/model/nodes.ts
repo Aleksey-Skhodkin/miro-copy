@@ -37,18 +37,35 @@ export function useNodes() {
     });
   };
 
-  // const deleteNodes = (ids: string[]) => {
-  //   setNodes((lastNodes) => {
-  //     return lastNodes.filter((node) => !ids.includes(node.id));
-  //   });
-  // };
   const deleteNodes = (ids: Set<string>) => {
     setNodes((lastNodes) => {
       return lastNodes.filter((node) => !ids.has(node.id));
     });
   };
 
-  return { nodes, addSticker, deleteNodes, updateStickerText };
+  const updateNodesPosition = (
+    positions: {
+      id: string;
+      x: number;
+      y: number;
+    }[],
+  ) => {
+    const record = Object.fromEntries(positions.map((pos) => [pos.id, pos]));
+    setNodes((prev) =>
+      prev.map((node) => {
+        const newPos = record[node.id];
+        return newPos ? { ...node, x: newPos.x, y: newPos.y } : node;
+      }),
+    );
+  };
+
+  return {
+    nodes,
+    addSticker,
+    deleteNodes,
+    updateStickerText,
+    updateNodesPosition,
+  };
 }
 
 export type NodesModel = ReturnType<typeof useNodes>;

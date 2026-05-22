@@ -7,13 +7,45 @@ export function useMouseDown(params: ViewModelParams) {
   const { setViewState, canvasRect } = params;
 
   const handleOverlayMouseDown = (idleState: IdleViewState, e: MouseEvent) => {
+    const point = pointOnScreenToCanvas(
+      { x: e.clientX, y: e.clientY },
+      canvasRect,
+    );
     setViewState({
       ...idleState,
-      mouseDown: pointOnScreenToCanvas(
-        { x: e.clientX, y: e.clientY },
-        canvasRect,
-      ),
+      mouseDown: {
+        type: "overlay",
+        x: point.x,
+        y: point.y,
+      },
     });
+  };
+
+  const handleNodeMouseDown = (
+    idleState: IdleViewState,
+    nodeId: string,
+    e: MouseEvent,
+  ) => {
+    const point = pointOnScreenToCanvas(
+      { x: e.clientX, y: e.clientY },
+      canvasRect,
+    );
+    setViewState({
+      ...idleState,
+      mouseDown: {
+        type: "node",
+        x: point.x,
+        y: point.y,
+        nodeId,
+      },
+    });
+  };
+
+  const getIsStickerMouseDown = (idleState: IdleViewState, nodeId: string) => {
+    return (
+      idleState.mouseDown?.type === "node" &&
+      idleState.mouseDown.nodeId === nodeId
+    );
   };
 
   const handeWindowMouseUp = (idleState: IdleViewState) => {
@@ -25,5 +57,10 @@ export function useMouseDown(params: ViewModelParams) {
     }
   };
 
-  return { handleOverlayMouseDown, handeWindowMouseUp };
+  return {
+    handleOverlayMouseDown,
+    handeWindowMouseUp,
+    handleNodeMouseDown,
+    getIsStickerMouseDown,
+  };
 }
