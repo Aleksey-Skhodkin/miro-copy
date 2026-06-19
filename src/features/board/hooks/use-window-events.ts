@@ -16,12 +16,17 @@ export function useWindowEvents(viewModel: ViewModel) {
     const onMouseUp = (e: MouseEvent) => {
       viewModelRef.current.window?.onMouseUp?.(e);
     };
+    const onMouseWheel = (e: WheelEvent) => {
+      viewModelRef.current.window?.onMouseWheel?.(e);
+    };
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("wheel", onMouseWheel);
 
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("wheel", onMouseWheel);
     };
   }, []);
 }

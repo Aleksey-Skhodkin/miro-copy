@@ -36,11 +36,6 @@ export function useAddStickerViewModel({
           x: point.x - canvasRect.x,
           y: point.y - canvasRect.y,
         });
-        // nodesModel.addSticker({
-        //   text: "Default",
-        //   x: e.clientX - canvasRect.x,
-        //   y: e.clientY - canvasRect.y,
-        // });
         setViewState(goToIdle());
       },
     },

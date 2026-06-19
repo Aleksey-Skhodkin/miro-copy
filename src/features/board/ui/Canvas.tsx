@@ -23,7 +23,9 @@ export function Canvas({
       {overlay}
       <div
         style={{
-          transform: `translate(${windowPosition.x}px, ${windowPosition.y}px) scale(${windowPosition.zoom})`,
+          transformOrigin: "left top",
+          // scale делаем перед translate!
+          transform: `scale(${windowPosition.zoom}) translate(${-windowPosition.x}px, ${-windowPosition.y}px)`,
         }}
       >
         {children}
