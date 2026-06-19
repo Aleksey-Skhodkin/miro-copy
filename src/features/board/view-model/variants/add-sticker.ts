@@ -1,3 +1,4 @@
+import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
 import type { ViewModelParams } from "../view-model-params";
 import type { ViewModel } from "../view-model-type";
 import { goToIdle } from "./idle";
@@ -10,6 +11,7 @@ export function useAddStickerViewModel({
   nodesModel,
   setViewState,
   canvasRect,
+  windowPositionModel,
 }: ViewModelParams) {
   return (): ViewModel => ({
     nodes: nodesModel.nodes,
@@ -24,11 +26,21 @@ export function useAddStickerViewModel({
       onClick: (e) => {
         if (!canvasRect) return;
 
+        const point = pointOnScreenToCanvas(
+          { x: e.clientX, y: e.clientY },
+          windowPositionModel.position,
+          canvasRect,
+        );
         nodesModel.addSticker({
           text: "Default",
-          x: e.clientX - canvasRect.x,
-          y: e.clientY - canvasRect.y,
+          x: point.x - canvasRect.x,
+          y: point.y - canvasRect.y,
         });
+        // nodesModel.addSticker({
+        //   text: "Default",
+        //   x: e.clientX - canvasRect.x,
+        //   y: e.clientY - canvasRect.y,
+        // });
         setViewState(goToIdle());
       },
     },

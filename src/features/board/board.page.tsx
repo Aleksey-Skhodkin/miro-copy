@@ -1,8 +1,10 @@
 import { ArrowRightIcon, StickerIcon } from "lucide-react";
 import { useCanvasRect } from "./hooks/use-canvas-rect";
 import { useLayoutFocus } from "./hooks/use-layout-focus";
+import { useNodesDimensions } from "./hooks/use-nodes-dimensions";
 import { useWindowEvents } from "./hooks/use-window-events";
 import { useNodes } from "./model/nodes";
+import { useWindowPositionModel } from "./model/window-position";
 import { ActionButton } from "./ui/ActionButton";
 import { Actions } from "./ui/Actions";
 import { Canvas } from "./ui/Canvas";
@@ -12,10 +14,10 @@ import { Overlay } from "./ui/Overlay";
 import { SelectionWindow } from "./ui/SelectionWindow";
 import { Sticker } from "./ui/Sticker";
 import { useViewModel } from "./view-model/use-view-model";
-import { useNodesDimensions } from "./hooks/use-nodes-dimensions";
 
 function BoardPage() {
   const nodesModel = useNodes();
+  const windowPositionModel = useWindowPositionModel();
   const { canvasRef, canvasRect } = useCanvasRect();
   const { nodeRef, nodesDimensions } = useNodesDimensions();
   const focusLayoutRef = useLayoutFocus();
@@ -23,25 +25,34 @@ function BoardPage() {
     nodesModel,
     canvasRect,
     nodesDimensions,
+    windowPositionModel,
   });
   useWindowEvents(viewModel);
 
   return (
     <Layout ref={focusLayoutRef} onKeyDown={viewModel.layout?.onKeyDown}>
       <Dots />
-      <Canvas ref={canvasRef} onClick={viewModel.canvas?.onClick}>
-        <Overlay
-          onClick={viewModel.overlay?.onClick}
-          onMouseDown={viewModel.overlay?.onMouseDown}
-          onMouseUp={viewModel.overlay?.onMouseUp}
-        />
+      <Canvas
+        ref={canvasRef}
+        onClick={viewModel.canvas?.onClick}
+        windowPosition={
+          viewModel.windowPosition ?? windowPositionModel.position
+        }
+        overlay={
+          <Overlay
+            onClick={viewModel.overlay?.onClick}
+            onMouseDown={viewModel.overlay?.onMouseDown}
+            onMouseUp={viewModel.overlay?.onMouseUp}
+          />
+        }
+      >
         {viewModel.nodes.map((node) => (
           <Sticker key={node.id} {...node} ref={nodeRef} />
         ))}
+        {viewModel.selectionWindow && (
+          <SelectionWindow {...viewModel.selectionWindow} />
+        )}
       </Canvas>
-      {viewModel.selectionWindow && (
-        <SelectionWindow {...viewModel.selectionWindow} />
-      )}
       <Actions>
         <ActionButton
           isActive={viewModel.actions?.addSticker?.isActive}

@@ -1,13 +1,14 @@
 import { type Selection } from "../../../domain/selection";
 import type { ViewModelParams } from "../../view-model-params";
 import type { ViewModel } from "../../view-model-type";
-import { useGoToNodesDragging } from "./goToNodesDragging";
+import { useGoToNodesDragging } from "./useGoToNodesDragging";
 import { useDeleteSelected } from "./use-delete-selected";
 import { useSelection } from "./use-selection";
 import { useGoToAddSticker } from "./useGoToAddSticker";
 import { useGoToEditSticker } from "./useGoToEditSticker";
 import { useGoToSelectionWindow } from "./useGoToSelectionWindow";
 import { useMouseDown } from "./useMouseDown";
+import { useGoToWindowDragging } from "./useGoToWindowDragging";
 
 export type IdleViewState = {
   type: "idle";
@@ -17,12 +18,14 @@ export type IdleViewState = {
         type: "overlay";
         x: number;
         y: number;
+        isRightClick: boolean;
       }
     | {
         type: "node";
         x: number;
         y: number;
         nodeId: string;
+        isRightClick: boolean;
       };
 };
 
@@ -36,6 +39,7 @@ export function useIdleViewModel(params: ViewModelParams) {
   const mouseDown = useMouseDown(params);
   const goToSelectionWindow = useGoToSelectionWindow(params);
   const goToNodesDragging = useGoToNodesDragging(params);
+  const goToWindowDragging = useGoToWindowDragging(params);
 
   return (idleState: IdleViewState): ViewModel => ({
     nodes: nodesModel.nodes.map((node) => ({
@@ -70,6 +74,7 @@ export function useIdleViewModel(params: ViewModelParams) {
       onMouseMove: (e) => {
         goToNodesDragging.handleWindowMouseMove(idleState, e);
         goToSelectionWindow.handleWindowMouseMove(idleState, e);
+        goToWindowDragging.handleWindowMouseMove(idleState, e);
       },
       onMouseUp: () => mouseDown.handeWindowMouseUp(idleState),
     },

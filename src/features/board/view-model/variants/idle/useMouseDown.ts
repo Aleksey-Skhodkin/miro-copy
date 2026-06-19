@@ -4,11 +4,12 @@ import type { IdleViewState } from ".";
 import type { ViewModelParams } from "../../view-model-params";
 
 export function useMouseDown(params: ViewModelParams) {
-  const { setViewState, canvasRect } = params;
+  const { setViewState, canvasRect, windowPositionModel } = params;
 
   const handleOverlayMouseDown = (idleState: IdleViewState, e: MouseEvent) => {
     const point = pointOnScreenToCanvas(
       { x: e.clientX, y: e.clientY },
+      windowPositionModel.position,
       canvasRect,
     );
     setViewState({
@@ -17,6 +18,7 @@ export function useMouseDown(params: ViewModelParams) {
         type: "overlay",
         x: point.x,
         y: point.y,
+        isRightClick: e.button === 2,
       },
     });
   };
@@ -28,6 +30,7 @@ export function useMouseDown(params: ViewModelParams) {
   ) => {
     const point = pointOnScreenToCanvas(
       { x: e.clientX, y: e.clientY },
+      windowPositionModel.position,
       canvasRect,
     );
     setViewState({
@@ -37,6 +40,7 @@ export function useMouseDown(params: ViewModelParams) {
         x: point.x,
         y: point.y,
         nodeId,
+        isRightClick: e.button === 2,
       },
     });
   };

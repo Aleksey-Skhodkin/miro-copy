@@ -23,6 +23,7 @@ export function useSelectionWindowViewModel({
   setViewState,
   canvasRect,
   nodesDimensions,
+  windowPositionModel,
 }: ViewModelParams) {
   const getNodes = (state: SelectionWindowViewState, selectionRect: Rect) => {
     return nodesModel.nodes.map((node) => {
@@ -48,6 +49,7 @@ export function useSelectionWindowViewModel({
         onMouseMove: (e) => {
           const currentPoint = pointOnScreenToCanvas(
             { x: e.clientX, y: e.clientY },
+            windowPositionModel.position,
             canvasRect,
           );
           setViewState({ ...state, endPoint: currentPoint });

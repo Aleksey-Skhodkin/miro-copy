@@ -2,30 +2,26 @@ import { distanceFromPoints } from "@/features/board/domain/point";
 import { pointOnScreenToCanvas } from "@/features/board/domain/screen-to-canvas";
 import type { IdleViewState } from ".";
 import type { ViewModelParams } from "../../view-model-params";
-import { goToNodesDragging } from "../nodes-dragging";
+import { goToWindowDragging } from "../window-dragging";
 
-export function useGoToNodesDragging(params: ViewModelParams) {
-  const { canvasRect, setViewState } = params;
+export function useGoToWindowDragging(params: ViewModelParams) {
+  const { canvasRect, setViewState, windowPositionModel } = params;
 
   const handleWindowMouseMove = (idleState: IdleViewState, e: MouseEvent) => {
-    if (idleState.mouseDown && idleState.mouseDown.type === "node") {
+    if (idleState.mouseDown && idleState.mouseDown.isRightClick) {
       const currentPoint = pointOnScreenToCanvas(
         {
           x: e.clientX,
           y: e.clientY,
         },
+        windowPositionModel.position,
         canvasRect,
       );
       if (distanceFromPoints(idleState.mouseDown, currentPoint) > 5) {
-        console.log("nodes dragging");
         setViewState(
-          goToNodesDragging({
+          goToWindowDragging({
             startPoint: idleState.mouseDown,
             endPoint: currentPoint,
-            nodesToMove: new Set([
-              ...idleState.selectedIds,
-              idleState.mouseDown.nodeId,
-            ]),
           }),
         );
       }
