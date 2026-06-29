@@ -46,8 +46,9 @@ export function useIdleViewModel(params: ViewModelParams) {
       ...node,
       // isSelected: idleState.selectedIds.has(node.id),
       isSelected: selection.isSelected(idleState, node.id),
-      onMouseDown: (e) => mouseDown.handleNodeMouseDown(idleState, node.id, e),
-      onMouseUp: (e) => {
+      onMouseDown: (e: React.MouseEvent) =>
+        mouseDown.handleNodeMouseDown(idleState, node.id, e),
+      onMouseUp: (e: React.MouseEvent) => {
         if (!mouseDown.getIsStickerMouseDown(idleState, node.id)) return;
         const clickResult = goToEditSticker.handleNodeClick(
           idleState,

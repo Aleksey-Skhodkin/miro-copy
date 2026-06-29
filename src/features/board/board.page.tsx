@@ -12,9 +12,9 @@ import { Dots } from "./ui/Dots";
 import { Layout } from "./ui/Layout";
 import { Overlay } from "./ui/Overlay";
 import { SelectionWindow } from "./ui/SelectionWindow";
-import { Sticker } from "./ui/Sticker";
+import { Sticker } from "./ui/nodes/Sticker";
 import { useViewModel } from "./view-model/use-view-model";
-import { vectorFromPoints, type Point } from "./domain/point";
+import { Arrow } from "./ui/nodes/Arrow";
 
 function BoardPage() {
   const nodesModel = useNodes();
@@ -48,13 +48,17 @@ function BoardPage() {
           />
         }
       >
-        {viewModel.nodes.map((node) => (
-          <Sticker key={node.id} {...node} ref={nodeRef} />
-        ))}
+        {viewModel.nodes.map((node) => {
+          if (node.type === "sticker") {
+            return <Sticker key={node.id} {...node} ref={nodeRef} />;
+          }
+          if (node.type === "arrow") {
+            return <Arrow key={node.id} {...node} ref={nodeRef} />;
+          }
+        })}
         {viewModel.selectionWindow && (
           <SelectionWindow {...viewModel.selectionWindow} />
         )}
-        <Arrow start={{ x: 30, y: 50 }} end={{ x: 90, y: 90 }} />
       </Canvas>
       <Actions>
         <ActionButton
@@ -72,38 +76,3 @@ function BoardPage() {
 }
 
 export const Component = BoardPage;
-
-function Arrow({ start, end }: { start: Point; end: Point }) {
-  const diff = vectorFromPoints(start, end);
-  const angle = Math.atan2(diff.y, diff.x);
-  const arrowRightAngle = angle + Math.PI * (1 - 1 / 6);
-  const arrowLeftAngle = angle - Math.PI * (1 - 1 / 6);
-  const arrowRightDiff = [
-    Math.cos(arrowRightAngle) * 10,
-    Math.sin(arrowRightAngle) * 10,
-  ];
-  const arrowLeftDiff = [
-    Math.cos(arrowLeftAngle) * 10,
-    Math.sin(arrowLeftAngle) * 10,
-  ];
-
-  return (
-    <svg className="absolute left-0 top-0 pointer-events-none">
-      <path
-        className="pointer-events-auto"
-        stroke="black"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="black"
-        d={`
-          M ${start.x} ${start.y} L ${end.x} ${end.y} 
-          M ${end.x} ${end.y} L ${end.x + arrowRightDiff[0]} ${end.y + arrowRightDiff[1]} 
-          L ${end.x + -5 * Math.cos(angle)} ${end.y + -5 * Math.sin(angle)}
-          L ${end.x + arrowLeftDiff[0]} ${end.y + arrowLeftDiff[1]}
-          L ${end.x} ${end.y}
-          `}
-      />
-    </svg>
-  );
-}
