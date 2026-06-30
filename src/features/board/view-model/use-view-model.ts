@@ -1,41 +1,46 @@
 import { useState } from "react";
-import {
-  useAddStickerViewModel,
-  type AddStickerViewState,
-} from "./variants/add-sticker";
-import {
-  goToIdle,
-  useIdleViewModel,
-  type IdleViewState,
-} from "./variants/idle";
-import type { ViewModelParams } from "./view-model-params";
-import type { ViewModel } from "./view-model-type";
-import {
-  useSelectionWindowViewModel,
-  type SelectionWindowViewState,
-} from "./variants/selection-window";
-import {
-  useEditStickerViewModel,
-  type EditStickerViewState,
-} from "./variants/edit-sticker";
-import {
-  useNodesDraggingViewModel,
-  type NodesDraggingViewState,
-} from "./variants/nodes-dragging";
-import {
-  useWindowDraggingViewModel,
-  type WindowDraggingViewState,
-} from "./variants/window-dragging";
+import { useCommonActionsDecorator } from "./decorator/common-actions";
 import { useZoomDecorator } from "./decorator/zoom";
 import {
   useAddArrowViewModel,
   type AddArrowViewState,
 } from "./variants/add-arrow";
-import { useCommonActionsDecorator } from "./decorator/common-actions";
+import {
+  useAddStickerViewModel,
+  type AddStickerViewState,
+} from "./variants/add-sticker";
+import {
+  useDrawArrowViewModel,
+  type DrawArrowViewState,
+} from "./variants/draw-arrow";
+import {
+  useEditStickerViewModel,
+  type EditStickerViewState,
+} from "./variants/edit-sticker";
+import {
+  goToIdle,
+  useIdleViewModel,
+  type IdleViewState,
+} from "./variants/idle";
+import {
+  useNodesDraggingViewModel,
+  type NodesDraggingViewState,
+} from "./variants/nodes-dragging";
+import {
+  useSelectionWindowViewModel,
+  type SelectionWindowViewState,
+} from "./variants/selection-window";
+import {
+  useWindowDraggingViewModel,
+  type WindowDraggingViewState,
+} from "./variants/window-dragging";
+import type { ViewModelParams } from "./view-model-params";
+import type { ViewModel } from "./view-model-type";
 
 export type ViewState =
   | AddStickerViewState
   | AddArrowViewState
+  | DrawArrowViewState
   | EditStickerViewState
   | IdleViewState
   | SelectionWindowViewState
@@ -52,6 +57,7 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
 
   const addStickerViewModel = useAddStickerViewModel(newParams);
   const addArrowViewModel = useAddArrowViewModel(newParams);
+  const drawArrowViewModel = useDrawArrowViewModel(newParams);
   const editStickerViewModel = useEditStickerViewModel(newParams);
   const idleViewModel = useIdleViewModel(newParams);
   const selectionWindowViewModel = useSelectionWindowViewModel(newParams);
@@ -68,6 +74,9 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       break;
     case "add-arrow":
       viewModel = commonActionsDecorator(addArrowViewModel());
+      break;
+    case "draw-arrow":
+      viewModel = drawArrowViewModel(viewState);
       break;
     case "edit-sticker":
       viewModel = editStickerViewModel(viewState);
