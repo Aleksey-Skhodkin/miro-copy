@@ -27,9 +27,15 @@ import {
   type WindowDraggingViewState,
 } from "./variants/window-dragging";
 import { useZoomDecorator } from "./decorator/zoom";
+import {
+  useAddArrowViewModel,
+  type AddArrowViewState,
+} from "./variants/add-arrow";
+import { useCommonActionsDecorator } from "./decorator/common-actions";
 
 export type ViewState =
   | AddStickerViewState
+  | AddArrowViewState
   | EditStickerViewState
   | IdleViewState
   | SelectionWindowViewState
@@ -45,6 +51,7 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
   };
 
   const addStickerViewModel = useAddStickerViewModel(newParams);
+  const addArrowViewModel = useAddArrowViewModel(newParams);
   const editStickerViewModel = useEditStickerViewModel(newParams);
   const idleViewModel = useIdleViewModel(newParams);
   const selectionWindowViewModel = useSelectionWindowViewModel(newParams);
@@ -52,17 +59,21 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
   const windowDraggingViewModel = useWindowDraggingViewModel(newParams);
 
   const zoomDecorator = useZoomDecorator(newParams);
+  const commonActionsDecorator = useCommonActionsDecorator(newParams);
 
   let viewModel: ViewModel;
   switch (viewState.type) {
     case "add-sticker":
-      viewModel = addStickerViewModel();
+      viewModel = commonActionsDecorator(addStickerViewModel());
+      break;
+    case "add-arrow":
+      viewModel = commonActionsDecorator(addArrowViewModel());
       break;
     case "edit-sticker":
       viewModel = editStickerViewModel(viewState);
       break;
     case "idle": {
-      viewModel = idleViewModel(viewState);
+      viewModel = commonActionsDecorator(idleViewModel(viewState));
       break;
     }
     case "selection-window":

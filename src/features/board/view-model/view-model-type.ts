@@ -50,9 +50,12 @@ export type ViewModel = {
     onMouseWheel?: (e: WheelEvent) => void;
   };
   actions?: {
-    addSticker?: {
-      onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-      isActive?: boolean;
-    };
+    addSticker?: ViewModelAction;
+    addArrow?: ViewModelAction;
   };
+};
+
+export type ViewModelAction = {
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  isActive?: boolean;
 };
