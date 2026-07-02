@@ -36,6 +36,7 @@ import {
 } from "./variants/window-dragging";
 import type { ViewModelParams } from "./view-model-params";
 import type { ViewModel } from "./view-model-type";
+import useResolveRelativeStaticDecorator from "./decorator/resolve-relative";
 
 export type ViewState =
   | AddStickerViewState
@@ -73,7 +74,8 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       viewModel = commonActionsDecorator(addStickerViewModel());
       break;
     case "add-arrow":
-      viewModel = commonActionsDecorator(addArrowViewModel());
+      viewModel = addArrowViewModel();
+      viewModel = commonActionsDecorator(viewModel);
       break;
     case "draw-arrow":
       viewModel = drawArrowViewModel(viewState);
@@ -82,7 +84,8 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       viewModel = editStickerViewModel(viewState);
       break;
     case "idle": {
-      viewModel = commonActionsDecorator(idleViewModel(viewState));
+      viewModel = idleViewModel(viewState);
+      viewModel = commonActionsDecorator(viewModel);
       break;
     }
     case "selection-window":
@@ -98,5 +101,7 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       throw new Error("Invalid view state");
   }
 
-  return zoomDecorator(viewModel);
+  viewModel = zoomDecorator(viewModel);
+  viewModel = useResolveRelativeStaticDecorator(viewModel);
+  return viewModel;
 }

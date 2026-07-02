@@ -1,4 +1,9 @@
-import { addPoints, vectorFromPoints, type Point } from "../../domain/point";
+import {
+  addPoints,
+  isRelativePoint,
+  diffPoints,
+  type Point,
+} from "../../domain/point";
 import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
 import type { ViewModelParams } from "../view-model-params";
 import type { ViewModel } from "../view-model-type";
@@ -20,14 +25,18 @@ export function useNodesDraggingViewModel({
   const getNodes = (state: NodesDraggingViewState) => {
     return nodesModel.nodes.map((node) => {
       if (state.nodesToMove.has(node.id)) {
-        const diff = vectorFromPoints(state.startPoint, state.endPoint);
+        const diff = diffPoints(state.startPoint, state.endPoint);
 
         if (node.type === "arrow") {
           return {
             ...node,
             isSelected: true,
-            start: addPoints(node.start, diff),
-            end: addPoints(node.end, diff),
+            start: isRelativePoint(node.start)
+              ? node.start
+              : addPoints(node.start, diff),
+            end: isRelativePoint(node.end)
+              ? node.end
+              : addPoints(node.end, diff),
           };
         }
 
@@ -63,19 +72,23 @@ export function useNodesDraggingViewModel({
                 return [
                   {
                     id: node.id,
-                    x: node.start.x,
-                    y: node.start.y,
+                    point: node.start,
                     type: "start",
                   },
                   {
                     id: node.id,
-                    x: node.end.x,
-                    y: node.end.y,
+                    point: node.end,
                     type: "end",
                   },
                 ];
               }
-              return { id: node.id, x: node.x, y: node.y };
+              return {
+                id: node.id,
+                point: {
+                  x: node.x,
+                  y: node.y,
+                },
+              };
             });
 
           nodesModel.updateNodesPosition(nodesToMove);

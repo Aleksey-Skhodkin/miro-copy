@@ -19,7 +19,7 @@ type ArrowNode = NodeBase & {
   end: Point;
 };
 
-type Node = StickerNode | ArrowNode;
+export type Node = StickerNode | ArrowNode;
 
 export function useNodes() {
   const [nodes, setNodes] = useState<Node[]>([
@@ -28,8 +28,8 @@ export function useNodes() {
     {
       id: "3",
       type: "arrow",
-      start: { x: 110, y: 110 },
-      end: { x: 210, y: 210 },
+      start: { x: 10, y: 10, relativeTo: "1" },
+      end: { x: 20, y: 20, relativeTo: "2" },
     },
   ]);
 
@@ -63,15 +63,30 @@ export function useNodes() {
 
   const deleteNodes = (ids: Set<string>) => {
     setNodes((lastNodes) => {
-      return lastNodes.filter((node) => !ids.has(node.id));
+      const arrowRelativeIds = new Set(
+        lastNodes
+          .filter(
+            (node) =>
+              (node.type === "arrow" &&
+                node.start.relativeTo &&
+                ids.has(node.start.relativeTo)) ||
+              (node.type === "arrow" &&
+                node.end.relativeTo &&
+                ids.has(node.end.relativeTo)),
+          )
+          .map((node) => node.id),
+      );
+
+      return lastNodes.filter(
+        (node) => !ids.has(node.id) && !arrowRelativeIds.has(node.id),
+      );
     });
   };
 
   const updateNodesPosition = (
     positions: {
       id: string;
-      x: number;
-      y: number;
+      point: Point;
       type?: "start" | "end";
     }[],
   ) => {
@@ -85,13 +100,13 @@ export function useNodes() {
           const newEndPosition = record[`${node.id}end`];
           return {
             ...node,
-            start: newPosition ?? node.start,
-            end: newEndPosition ?? node.end,
+            start: newPosition?.point ?? node.start,
+            end: newEndPosition?.point ?? node.end,
           };
         }
         if (node.type === "sticker") {
           const newPos = record[node.id];
-          return newPos ? { ...node, x: newPos.x, y: newPos.y } : node;
+          return newPos ? { ...node, ...newPos.point } : node;
         }
 
         return node;
